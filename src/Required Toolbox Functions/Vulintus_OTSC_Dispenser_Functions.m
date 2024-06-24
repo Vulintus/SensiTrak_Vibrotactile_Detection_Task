@@ -1,0 +1,73 @@
+function ctrl = Vulintus_OTSC_Dispenser_Functions(ctrl, otsc_codes, varargin)
+
+%Vulintus_OTSC_Dispenser_Functions.m - Vulintus, Inc., 2022
+%
+%   VULINTUS_OTSC_DISPENSER_FUNCTIONS defines and adds OmniTrak Serial
+%   Communication (OTSC) functions to a function structure for control of 
+%   Vulintus OmniTrak devices over the serial line. These functions are 
+%   designed to be used with the "serialport" object introduced in MATLAB 
+%   R2019b and will not work with the older "serial" object communication.
+%
+%   UPDATE LOG:
+%   2023-10-02 - Drew Sloan - Function first created, split off from
+%                             "Vulintus_OTSC_Common_Functions.m".
+%   2024-02-22 - Drew Sloan - Organized functions by scope into subfields.
+%   2024-06-07 - Drew Sloan - Added a optional "devices" input argument to
+%                             selectively add the functions to the control 
+%                             structure.
+%
+
+
+%List the Vulintus devices that use these functions.
+device_list = {'MT-PP','OT-3P','OT-CC'};
+
+%If an cell arracy of connected devices was provided, match against the device lis.
+if nargin > 2
+    connected_devices = varargin{1};                                        %Grab the list of connected devices.
+    [~,i,~] = intersect(connected_devices,device_list);                     %Look for any matches between the two device lists.
+    if ~any(i)                                                              %If no match was found...
+        if isfield(ctrl,'feed')                                             %If there's a "feed" field in the control structure...
+            ctrl = rmfield(ctrl,'feed');                                    %Remove it.
+        end
+        return                                                              %Skip execution of the rest of the function.
+    end
+end
+
+serialcon = ctrl.serialcon;                                                 %Grab the handle for the serial connection.
+
+%Pellet/liquid dispenser control functions.
+ctrl.feed = [];                                                             %Create a field to hold feeder functions.
+
+%Trigger dispensing on the currently-selected dispenser.
+ctrl.feed.start = ...
+    @(varargin)Vulintus_OTSC_Transaction(serialcon,...
+    otsc_codes.TRIGGER_FEEDER,...
+    varargin{:});                         
+
+%Immediately shut off any active dispensing trigger.
+ctrl.feed.stop = ...
+    @(varargin)Vulintus_OTSC_Transaction(serialcon,...
+    otsc_codes.STOP_FEED,...
+    varargin{:});                                                  
+
+%Request/set the current dispenser index.
+ctrl.feed.cur_feeder.get = ...
+    @(varargin)Vulintus_OTSC_Transaction(serialcon,...
+	otsc_codes.REQ_CUR_FEEDER,...
+    'reply',{1,'uint8'},...
+    varargin{:});      
+ctrl.feed.cur_feeder.set = ...
+    @(i,varargin)Vulintus_OTSC_Transaction(serialcon,...
+    otsc_codes.CUR_FEEDER,...
+    'data',{i,'uint8'},...
+    varargin{:});                                                 
+
+%Request/set the current dispenser trigger duration, in milliseconds.
+ctrl.feed.trig_dur.get = @(varargin)Vulintus_OTSC_Transaction(serialcon,...
+    otsc_codes.REQ_FEED_TRIG_DUR,...
+    'reply',{1,'uint16'},...
+    varargin{:});
+ctrl.feed.trig_dur.set = @(dur)Vulintus_OTSC_Transaction(serialcon,...
+    otsc_codes.FEED_TRIG_DUR,...
+    'data',{dur,'uint16'},...
+    varargin{:});
