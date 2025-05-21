@@ -1,7 +1,9 @@
 function Vibrotactile_Detection_Startup(varargin)
 
 %
-%Vibrotactile_Detection_Startup.m - Vulintus, Inc.
+% Vibrotactile_Detection_Startup.m - Vulintus, Inc.
+%
+%   copyright 2024, Vulintus, Inc.
 %
 %   VIBROTACTILE_DETECTION_STARTUP starts the SensiTrak vibrotactile
 %   detection task program. It loads in default parameters, creates the 
@@ -15,8 +17,8 @@ function Vibrotactile_Detection_Startup(varargin)
 
 %% Use the Vulintus Common Behavior startup function.
 if nargin                                                                   %If there were any input arguments.
-    handles = varargin{1};                                                  %Assume the handles structure is the first input.
+    behavior = varargin{1};                                                 %Assume the behavior class is the first input.
 else                                                                        %Otherwise...
-    handles = struct('task','Vibrotactile Detection');                      %Create a handles structure.
+    behavior = Vulintus_Behavior_Class('Vibrotactile Detection');           %Create a Vulintus Behavior class instance.
 end
-Vulintus_Behavior_Startup(handles);                                         %Call the common behavior startup functions.
+Vulintus_Behavior_Startup(behavior);                                        %Call the common behavior startup functions.

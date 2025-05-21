@@ -8,7 +8,7 @@ function handles = Vulintus_Behavior_Common_GUI(varargin)
 %   
 %   UPDATE LOG:
 %   2024-02-28 - Drew Sloan - Function first created, adapted from
-%                             SToP_Task_Make_GUI.m
+%                             Stop_Task_Make_GUI.m
 %
 
 

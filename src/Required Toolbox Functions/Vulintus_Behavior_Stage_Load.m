@@ -34,8 +34,8 @@ for gui_i = instances                                                       %Ste
             handles.stages(handles.cur_stage(gui_i)).list_str;              %Set the stage dropdown menu value to the current stage.
     end
     
-    if isfield(handles.program,'load_stage_fcn')                            %If a stage loading function is specified for this behavior...
-        handles.program.load_stage_fcn(handles, gui_i);                     %Run the stages through the check function.
+    if is_fcn_field(handles.program,'fcn','load_stage')                            %If a stage loading function is specified for this behavior...
+        handles.program.fcn.load_stage(handles, gui_i);                     %Run the stages through the check function.
     end
 
 end

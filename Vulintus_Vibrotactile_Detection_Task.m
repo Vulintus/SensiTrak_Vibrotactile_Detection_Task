@@ -52,7 +52,7 @@ if nargin == 0                                                              %If 
     i = 1;                                                                  %Set the index to 1.
 else                                                                        %Otherwise...
     program = varargin{1};                                                  %Grab the program structure that was passed.
-    if length(program) <= 1 && isempty(program(1).task)                     %If the program structure isn't initialized...
+    if length(program) <= 1 || isempty(program(1).task)                     %If the program structure isn't initialized...
         i = 1;                                                              %Set the index to 1.
     else                                                                    %Otherwise...
         i = length(program) + 1;                                            %Increment the program index.
@@ -68,22 +68,22 @@ program(i).required_modules = {
     };                                                                      %Required primary modules.
 
 %Default configuration function.
-program(i).default_config_fcn = ...
+program(i).fcn.default_config = ...
     @(handles)Vibrotactile_Detection_Default_Config(handles); 
 
 % %Idle loop function.
-% program(i).idle_fcn = @(fig_handle)Vibrotactile_Detection_Idle(fig_handle);           
+% program(i).fcn.idle = @(fig_handle)Vibrotactile_Detection_Idle(fig_handle);           
 
 %Behavioral session function.
-program(i).session_fcn = ...
+program(i).fcn.session = ...
     @(fig_handle)Vibrotactile_Detection_Session_Loop(fig_handle);
 
 %System diagram update function.
-program(i).plot_system_fcn = ...
+program(i).fcn.plot_system = ...
     @(handles)Vibrotactile_Detection_System_Diagram(handles);
 
 %Data plot update function.
-program(i).plot_data_fcn = ...
+program(i).fcn.plot_data = ...
     @(handles,data)Vibrotactile_Detection_Data_Plot(handles,data);
 
 %Input signals processing function.
@@ -193,7 +193,7 @@ function handles = Vulintus_Behavior_Common_GUI(varargin)
 %   
 %   UPDATE LOG:
 %   2024-02-28 - Drew Sloan - Function first created, adapted from
-%                             SToP_Task_Make_GUI.m
+%                             Stop_Task_Make_GUI.m
 %
 
 
@@ -1098,8 +1098,8 @@ while fix(fig.UserData.run) == fig.UserData.run_state.root.idle             %Loo
             if n_events > 0                                                 %If there was any new data in the stream.
                 fig.UserData.program.process_input_fcn(fig,...
                     new_data);                                              %Call the function to process input signals.
-                if isfield(fig.UserData.program,'plot_system_fcn')          %If a system diagram update function was set...
-                    fig.UserData.program.plot_system_fcn(fig);              %Call the function to create or update the diagram.
+                if is_fcn_field(fig.UserData,'program','fcn','plot_system')          %If a system diagram update function was set...
+                    fig.UserData.program.fcn.plot_system(fig);              %Call the function to create or update the diagram.
                 end
             end             
 
@@ -1223,8 +1223,8 @@ while fig.UserData.run ~= fig.UserData.run_state.root.close                 %Loo
         
         case run_state.root.idle                                            %Run state: idle mode
             if isfield(fig.UserData.program,'idle_fcn') && ...
-                    ~isempty(fig.UserData.program.idle_fcn)                 %If a task-specific idle function is set...
-                fig.UserData.program.idle_fcn(fig);                         %Call the idle loop.                
+                    ~isempty(fig.UserData.program.fcn.idle)                 %If a task-specific idle function is set...
+                fig.UserData.program.fcn.idle(fig);                         %Call the idle loop.                
             else                                                            %Otherwise...
                 Vulintus_Behavior_Idle(fig);                                %Call the common behavior idle loop.
             end
@@ -1232,8 +1232,8 @@ while fig.UserData.run ~= fig.UserData.run_state.root.close                 %Loo
             
         case run_state.root.session                                         %Run state: behavior session.
             if isfield(fig.UserData.program,'session_fcn') && ...
-                    ~isempty(fig.UserData.program.session_fcn)              %If a task-specific behavioral sesssion function is set...
-                fig.UserData.program.session_fcn(fig);                      %Call the behavioral session loop.          
+                    ~isempty(fig.UserData.program.fcn.session)              %If a task-specific behavioral sesssion function is set...
+                fig.UserData.program.fcn.session(fig);                      %Call the behavioral session loop.          
             else                                                            %Otherwise...
                 Vulintus_Behavior_Run_Session(fig);                         %Call the common behavior session loop.
             end
@@ -1354,8 +1354,8 @@ program = Tactile_Discrimination_Program_Info(program);
 program = Vibrotactile_Detection_Program_Info(program);
 
 
-%% SToP Task.
-program = SToP_Task_Program_Info(program);
+%% Stop Task.
+program = Stop_Task_Program_Info(program);
 
 
 [~, i] = sort({program.task});                                              %Sort the programs alphabetically by name.
@@ -1762,8 +1762,8 @@ for gui_i = instances                                                       %Ste
             handles.stages(handles.cur_stage(gui_i)).list_str;              %Set the stage dropdown menu value to the current stage.
     end
     
-    if isfield(handles.program,'load_stage_fcn')                            %If a stage loading function is specified for this behavior...
-        handles.program.load_stage_fcn(handles, gui_i);                     %Run the stages through the check function.
+    if is_fcn_field(handles.program,'fcn','load_stage')                            %If a stage loading function is specified for this behavior...
+        handles.program.fcn.load_stage(handles, gui_i);                     %Run the stages through the check function.
     end
 
 end
@@ -1782,7 +1782,7 @@ function stages = Vulintus_Behavior_Stages_Read(stage_path, varargin)
 %   
 %   UPDATE LOG:
 %   2024-02-29 - Drew Sloan - Function first created, adapted from
-%                             SToP_Task_Read_Stages.m
+%                             Stop_Task_Read_Stages.m
 %
 
 if nargin > 1                                                               %If stage synchronization information was passed.
@@ -1884,7 +1884,7 @@ function varargout = Vulintus_Behavior_Startup(varargin)
 %   
 %   UPDATE LOG:
 %   2020-02-28 - Drew Sloan - Function first created, adapted from
-%                             SToP_Task_Startup.m
+%                             Stop_Task_Startup.m
 %
 
 
@@ -1989,7 +1989,7 @@ switch handles.task                                                         %Swi
     otherwise                                                               %All other tasks.
         handles = Vulintus_Behavior_Common_GUI(handles);                    %Use the Vulintus Common Behavioral GUI.
 end
-% set(handles.mainfig,'resize','on','ResizeFcn',@SToP_Task_Resize);         %Set the resize function for the vibration task main figure.
+% set(handles.mainfig,'resize','on','ResizeFcn',@Stop_Task_Resize);         %Set the resize function for the vibration task main figure.
 Vulintus_All_Uicontrols_Enable(handles.mainfig,'off');                      %Disable all of the uicontrols until the Arduino is connected.
 if isfield(handles.ui,'msgbox')                                             %If there's a messagebox on the GUI...
     Clear_Msg([handles.ui.msgbox]);                                         %Clear all messages out of the messagebox.
@@ -2028,9 +2028,9 @@ handles.computer = Vulintus_Behavior_Computer_Info;                         %Fet
 handles.mainpath = Vulintus_Set_AppData_Path(handles.system_name);          %Grab the expected directory for this system's application data.
 if ~isfield(handles,'initialized') || handles.initialized == 0              %If this is the first time running the startup function...
     handles.datapath = Vulintus_Behavior_Default_Datapath(handles.task);    %Set the default data directory.
-    if isfield(handles.program,'default_config_fcn') && ...
-            ~isempty(handles.program.default_config_fcn)                    %If there's a default configuration function for this task...
-        handles = handles.program.default_config_fcn(handles);              %Load the default configuration values.    
+    if isfield(handles.program,'fcn.default_config') && ...
+            ~isempty(handles.program.fcn.default_config)                    %If there's a default configuration function for this task...
+        handles = handles.program.fcn.default_config(handles);              %Load the default configuration values.    
     end
     handles = Vulintus_Behavior_Config_Load(handles);                       %Load any existing configuration file.
 end
@@ -2048,7 +2048,7 @@ else                                                                        %Oth
         handles.stages_sync);                                               %Load the stages, passing the configuration path and the stage synchronization links.
 end
 if isfield(handles.program,'stage_check_fcn')                               %If a stage checking function is specified for this behavior...
-    handles.stages = handles.program.stage_check_fcn(handles.stages);       %Run the stages through the check function.
+    handles.stages = handles.program.fcn.stage_check(handles.stages);       %Run the stages through the check function.
 end
 handles.cur_stage = ones(1,length(handles.ui));                             %Set the current stage to the first stage in the list.
 Vulintus_Behavior_Stage_Load(handles);                                      %Load the stage in the GUI.

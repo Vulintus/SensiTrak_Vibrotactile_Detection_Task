@@ -35,8 +35,8 @@ program = Tactile_Discrimination_Program_Info(program);
 program = Vibrotactile_Detection_Program_Info(program);
 
 
-%% SToP Task.
-program = SToP_Task_Program_Info(program);
+%% Stop Task.
+program = Stop_Task_Program_Info(program);
 
 
 [~, i] = sort({program.task});                                              %Sort the programs alphabetically by name.

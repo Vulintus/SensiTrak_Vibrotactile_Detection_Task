@@ -9,7 +9,7 @@ function varargout = Vulintus_Behavior_Startup(varargin)
 %   
 %   UPDATE LOG:
 %   2020-02-28 - Drew Sloan - Function first created, adapted from
-%                             SToP_Task_Startup.m
+%                             Stop_Task_Startup.m
 %
 
 
@@ -114,7 +114,7 @@ switch handles.task                                                         %Swi
     otherwise                                                               %All other tasks.
         handles = Vulintus_Behavior_Common_GUI(handles);                    %Use the Vulintus Common Behavioral GUI.
 end
-% set(handles.mainfig,'resize','on','ResizeFcn',@SToP_Task_Resize);         %Set the resize function for the vibration task main figure.
+% set(handles.mainfig,'resize','on','ResizeFcn',@Stop_Task_Resize);         %Set the resize function for the vibration task main figure.
 Vulintus_All_Uicontrols_Enable(handles.mainfig,'off');                      %Disable all of the uicontrols until the Arduino is connected.
 if isfield(handles.ui,'msgbox')                                             %If there's a messagebox on the GUI...
     Clear_Msg([handles.ui.msgbox]);                                         %Clear all messages out of the messagebox.
@@ -153,9 +153,9 @@ handles.computer = Vulintus_Behavior_Computer_Info;                         %Fet
 handles.mainpath = Vulintus_Set_AppData_Path(handles.system_name);          %Grab the expected directory for this system's application data.
 if ~isfield(handles,'initialized') || handles.initialized == 0              %If this is the first time running the startup function...
     handles.datapath = Vulintus_Behavior_Default_Datapath(handles.task);    %Set the default data directory.
-    if isfield(handles.program,'default_config_fcn') && ...
-            ~isempty(handles.program.default_config_fcn)                    %If there's a default configuration function for this task...
-        handles = handles.program.default_config_fcn(handles);              %Load the default configuration values.    
+    if isfield(handles.program,'fcn.default_config') && ...
+            ~isempty(handles.program.fcn.default_config)                    %If there's a default configuration function for this task...
+        handles = handles.program.fcn.default_config(handles);              %Load the default configuration values.    
     end
     handles = Vulintus_Behavior_Config_Load(handles);                       %Load any existing configuration file.
 end
@@ -173,7 +173,7 @@ else                                                                        %Oth
         handles.stages_sync);                                               %Load the stages, passing the configuration path and the stage synchronization links.
 end
 if isfield(handles.program,'stage_check_fcn')                               %If a stage checking function is specified for this behavior...
-    handles.stages = handles.program.stage_check_fcn(handles.stages);       %Run the stages through the check function.
+    handles.stages = handles.program.fcn.stage_check(handles.stages);       %Run the stages through the check function.
 end
 handles.cur_stage = ones(1,length(handles.ui));                             %Set the current stage to the first stage in the list.
 Vulintus_Behavior_Stage_Load(handles);                                      %Load the stage in the GUI.

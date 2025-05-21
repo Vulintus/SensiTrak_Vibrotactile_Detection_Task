@@ -10,7 +10,7 @@ function stages = Vulintus_Behavior_Stages_Read(stage_path, varargin)
 %   
 %   UPDATE LOG:
 %   2024-02-29 - Drew Sloan - Function first created, adapted from
-%                             SToP_Task_Read_Stages.m
+%                             Stop_Task_Read_Stages.m
 %
 
 if nargin > 1                                                               %If stage synchronization information was passed.

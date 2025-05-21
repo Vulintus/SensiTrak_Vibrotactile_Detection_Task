@@ -118,8 +118,8 @@ while fix(fig.UserData.run) == fig.UserData.run_state.root.idle             %Loo
             if n_events > 0                                                 %If there was any new data in the stream.
                 fig.UserData.program.process_input_fcn(fig,...
                     new_data);                                              %Call the function to process input signals.
-                if isfield(fig.UserData.program,'plot_system_fcn')          %If a system diagram update function was set...
-                    fig.UserData.program.plot_system_fcn(fig);              %Call the function to create or update the diagram.
+                if is_fcn_field(fig.UserData,'program','fcn','plot_system')          %If a system diagram update function was set...
+                    fig.UserData.program.fcn.plot_system(fig);              %Call the function to create or update the diagram.
                 end
             end             
 
