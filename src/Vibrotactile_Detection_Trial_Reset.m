@@ -1,11 +1,11 @@
-function Vibrotactile_Detection_Reset_Trial(behavior)
+function Vibrotactile_Detection_Trial_Reset(behavior)
 
 %
 % Vibrotactile_Detection_Reset_behavior.session.trial(t).m
 %   
 %   copyright 2024, Vulintus, Inc.
 %
-%   VIBROTACTILE_DETECTION_RESET_TRIAL resets all trial variables at the 
+%   VIBROTACTILE_DETECTION_TRIAL_RESET resets all trial variables at the 
 %   start of a session or following a completed trial to prepare monitoring
 %   for the next trial initiation for the SensiTrak vibrotactile detection 
 %   task program.
@@ -13,13 +13,17 @@ function Vibrotactile_Detection_Reset_Trial(behavior)
 %   UPDATE LOG:
 %   2024-11-13 - Drew Sloan - Function first implemented, adapted from
 %                             "Vibrotactile_Detection_Task_Reset_Trial_Data.m"
+%   2025-05-21 - Drew Sloan - Renamed from 
+%                             "Vibrotactile_Detection_Reset_Trial" to
+%                             "Vibrotactile_Detection_Trial_Reset".
 %
 
 %Create a new Vulintus_Behavior_Trial_Class instance.
 behavior.session.count.trial = behavior.session.count.trial + 1;            %Increment the trial counter.
 t = behavior.session.count.trial;                                           %Copy the current trial index to a simpler variable.
 behavior.session.trial(t) = Vulintus_Behavior_Trial_Class(datetime('now')); %Create a new trial class instance.
-behavior.session.trial(t).outcome = 'MISS';                                 %Assume the mouse will score a miss.
+behavior.session.trial(t).outcome = 'MISS';                                 %Assume the animal will score a miss.
+behavior.session.trial(t).params.time_held = 0;                             %Assume the animal will hold for zero seconds.
 
 %Set the vibration parameters.
 s = behavior.session.params.stim_index;                                     %Copy the current stim index to a shorter variable name.
@@ -54,7 +58,7 @@ if t == 1 || behavior.session.trial(t-1).outcome(1) ~= 'A'                  %If 
         round(temp/(behavior.session.trial(t).params.vib_ipi/1000));        %Calculate the start index of the gap.
 else                                                                        %Otherwise...
    behavior.session.trial(t).params.gap_start = ...
-       behavior.session.trial(t).params.gap_start(t-1);                     %Set the gap start time to the same value used in the previous trial.
+       behavior.session.trial(t-1).params.gap_start;                        %Set the gap start time to the same value used in the previous trial.
 end
 if behavior.session.trial(t).params.gap_start < 2                           %If the calculated gap start index is less than the second pulse...
     behavior.session.trial(t).params.gap_start = 2;                         %Make the second pulse the gap start pulse.

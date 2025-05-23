@@ -1,11 +1,11 @@
-function Vibrotactile_Detection_System_Diagram(behavior)
+function Vibrotactile_Detection_Plot_System(behavior)
 
 %
-% Vibrotactile_Detection_System_Diagram.m
+% Vibrotactile_Detection_Plot_System.m
 % 
 %   copyright 2024, Vulintus, Inc.
 %
-%   VIBROTACTILE_DETECTION_SYSTEM_DIAGRAM creates and then updates a system
+%   VIBROTACTILE_DETECTION_PLOT_SYSTEM creates and then updates a system
 %   diagram on the system axes of the Vulintus Common Behaivor GUI showing
 %   the recent force sensor history and pellet receiver, cue light, and 
 %   house light status for the SensiTrak vibrotactile detection task.
@@ -13,6 +13,9 @@ function Vibrotactile_Detection_System_Diagram(behavior)
 %   UPDATE LOG:
 %   2024-11-11 - Drew Sloan - Function first created, adapted from
 %                             "Fixed_Reinforcement_System_Diagram.m".
+%   2025-05-21 - Drew Sloan - Renamed from 
+%                             "Vibrotactile_Detection_System_Diagram" to
+%                             "Vibrotactile_Detection_Plot_System".
 %
 
 
@@ -33,10 +36,10 @@ if is_empty_field(behavior.ui,'display','initialized')                      %If 
                                     'initialized', true);                   %Reset the display field.
     cla(behavior.ui.ax.system);                                             %Clear the system diagram axes.
     hold(behavior.ui.ax.system,'on');                                       %Hold the axes for multiple plot calls.
-    set(behavior.ui.ax.system,  'xtick',        [],...
-                                'ytickmode',    'auto',...
-                                'yticklabels',  [],...
-                                'xlim',         [1,500]);                   %Reset the axis ticks and limits.
+    set(behavior.ui.ax.system, 'xtick',        [],...
+                               'ytickmode',    'auto',...
+                               'yticklabels',  [],...
+                               'xlim',         [1,500]);                    %Reset the axis ticks and limits.
     behavior.ui.ax.system.Units = 'centimeters';                            %Set the axes position units to centimeters.    
     behavior.ui.display.force = ...
         area(1:behavior.status.force_buffer.size(2),...
@@ -56,7 +59,7 @@ if is_empty_field(behavior.ui,'display','initialized')                      %If 
         'visible','on',...
         'parent',behavior.ui.ax.system);                                    %Plot a dotted line to show the threshold.
 
-
+    %If a nosepoke is connected, create nosepoke and lick sensor indicators.
     % txt_fontsize = 2.0*behavior.ui.ax.system.Position(4);                   %Grab the height of the axes, in centimeters.
     % str = {'LEFT','CENTER','RIGHT'};                                        %Create labels for the IR sensors.
     % xy = [sind(0:3:360)', cosd(0:3:360)'];                                  %Create basic circle coordinates.
@@ -81,6 +84,13 @@ if is_empty_field(behavior.ui,'display','initialized')                      %If 
     %     1+0.1*xy(:,2),colors.idle,...
     %     'parent',behavior.ui.ax.system,...
     %     'UserData',0);                                                      %Create a droplet to show the lick sensor
+
+    %Create placeholder text on the data axes.
+    cla(behavior.ui.ax.data);                                               %Clear the psychophysical plot axes.
+    str = {'Select a Subject and a'; 'Training Stage to Get Started'}';     %Create a message string.
+    Vulintus_Centered_Axes_Message(str, behavior.ui.ax.data, 0.5);          %Show the message on data axes.
+
+
 end
 
 %Update the force plot.
@@ -135,6 +145,12 @@ if isfield(behavior.status,'lick')                                          %If 
     %     behavior.ui.display.lick.UserData = ...
     %         behavior.status.lick(1);                                        %Save the blocked/unblocked indicator back to the object UserData.
     % end
+end
+
+if isfield(behavior.ui.display,'prog_handle') && ...
+        ishandle(behavior.ui.display.prog_handle)                           %If the trial progression line exists...
+    behavior.ui.display.prog_handle.XData = ...
+        [1,1]*behavior.ui.display.trial_time;                               %Update the progress line in the data axes.
 end
 
 behavior.status.new_data = false;                                           %Set the new data flag to false to show the data has been plotted.

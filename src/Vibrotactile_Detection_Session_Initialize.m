@@ -1,11 +1,11 @@
-function Vibrotactile_Detection_Initialize_Session(behavior)
+function Vibrotactile_Detection_Session_Initialize(behavior)
 
 %
-% Vibrotactile_Detection_Task_Initialize_Session.m
+% Vibrotactile_Detection_Session_Initialize.m
 %   
 %   copyright 2024, Vulintus, Inc.
 %
-%   VIBROTACTILE_DETECTION_TASK_INITIALIZE_SESSION creates and populates 
+%   Vibrotactile_Detection_Session_Initialize creates and populates 
 %   the SensiTrak vibrotactile detection task session class.
 %   
 %   UPDATE LOG:
@@ -34,6 +34,17 @@ if is_empty_field(behavior.session,'params','period')                       %If 
         end
     end
 end
+
+%Create/clear fields used to track variables for psychophysical plots.
+behavior.session.params.gap_length = [];
+behavior.session.params.actual_gap_length = [];
+behavior.session.params.vib_rate = [];
+behavior.session.params.actual_vib_rate = [];
+behavior.session.params.time_held = [];
+
+%Reset the counts.
+behavior.session.count.trial = 0;                                           %Set the trial count to zero.
+behavior.session.count.feed = 0;                                            %Set the feeding count to zero.
 
 %Create a matrix to track outcomes for each vibration rate.
 vib_rates = double(behavior.session.params.vib_rates);                      %Grab the possible vibration rates.  
@@ -75,8 +86,7 @@ if is_empty_field(behavior.session,'params','pre_trial_sampling')           %If 
 end
 temp = round((1000*behavior.session.params.pre_trial_sampling)/...
     behavior.session.params.period);                                        %Calculate the number of samples in the pre-trial period.
-behavior.session.params.pre_sample_index = ...
-    (-(temp-1):1:0) + double(behavior.status.force_buffer.size(2));         %Calculate the pre-trial samples.
+behavior.session.params.pre_sample_index = temp:-1:1;                       %Calculate the pre-trial samples.
 
 %Create the initial stimulus block.
 behavior.session.params.stim_block = ...
