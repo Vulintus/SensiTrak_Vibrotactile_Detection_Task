@@ -13,12 +13,10 @@ function Vibrotactile_Detection_Session_Initialize(behavior)
 %                             "Vibrotactile_Detection_Task_Initialize_Session."
 %
 
+
 %Set the session timing parameters.
 if isempty(behavior.session.display)                                        %If the display structure isn't initialized.
-    behavior.session.display = struct('hit_ln',[],'hit_txt',[]);            %Create the structure with the hit indicator line handles.
-else                                                                        %Otherwise...
-    behavior.session.display.hit_ln = [];                                   %Hit indicator line handles.
-    behavior.session.display.hit_txt = [];                                  %Hit text label handles.
+    behavior.session.display = struct('yscale',[]);                         %Create the structure with the y scale value empty.
 end
 
 %Check the sampling parameters.
@@ -34,6 +32,10 @@ if is_empty_field(behavior.session,'params','period')                       %If 
         end
     end
 end
+behavior.status.touch_flag = false;                                         %Force the touch flag to false.
+
+%Clear the trial history.
+behavior.session.trial = [];                            
 
 %Create/clear fields used to track variables for psychophysical plots.
 behavior.session.params.gap_length = [];

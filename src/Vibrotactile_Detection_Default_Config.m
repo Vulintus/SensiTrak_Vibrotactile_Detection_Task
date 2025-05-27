@@ -26,7 +26,10 @@ end
 %     'https://docs.google.com/spreadsheets/d/1OCK_8ckrrWsmYC3fVg9tf54YyFmOTxS_k2chZOt4jJQ/';       
 
 %Autopositioner offset.
-behavior.program.params.autopositioner_offset = 85;
+ap_offset = 57;
+behavior.program.params.autopositioner_offset = ap_offset;
+behavior.ctrl.vpb.ap_offset.set(ap_offset);
+fprintf('%s - Autopositioner offset set to %1.0f mm.\n', char(datetime,'HH:mm:ss.SSS'), ap_offset);
 
 %Minimum reach distance.
 behavior.program.params.min_reach_distance = 10;

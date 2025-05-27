@@ -50,6 +50,12 @@ behavior.session.fcn.stream_enable = ...
 
 behavior.session.fcn.feed = @()behavior.ctrl.feed.start();                  %Set the feeding function.
 
+ap_dist = behavior.session.params.autopositioner_offset - ...
+    behavior.session.params.pos_start;                                      %Adjust the starting autopositioner position against the offset.
+behavior.ctrl.vpb.ap_dist_x.set(ap_dist);                                   %Move the module to starting position.
+fprintf(1,'%s - Setting position to %1.0f mm (%1.0f)\n',...
+    char(datetime,'HH:mm:ss.SSS'), behavior.session.params.pos_start, ap_dist);
+
 behavior.session.fcn.loadcell.rebaseline = [];                              %Clear any baseline reset function.
 behavior.session.fcn.haptic.mode = [];                                      %Clear any mode-setting function.
 behavior.session.fcn.haptic.start = [];                                     %Clear any haptic start function.
