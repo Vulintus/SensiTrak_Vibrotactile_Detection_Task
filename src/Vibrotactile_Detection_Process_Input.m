@@ -16,7 +16,7 @@ function Vibrotactile_Detection_Process_Input(behavior, packet, src, varargin)
 %                             handle debouncing.
 %
 
-data = varargin;                                                            %Copy the variable input arguments
+data = varargin;                                                            %Copy the variable input arguments.
 
 if ~behavior.status.initialized                                             %If the status fields aren't yet initialized.
     behavior.status.force_buffer = Vulintus_Plot_Buffer([3,500]);           %Buffer to hold force values.
@@ -36,7 +36,6 @@ if ~behavior.status.initialized                                             %If 
     behavior.status.initialized = true;                                     %Indicate the status fields are now initialized.    
 end
 
-
 switch packet                                                               %Switch between the different data types.
     
     case 'LOADCELL_VAL_GM'                                                  %Loadcell value in grams...
@@ -44,9 +43,7 @@ switch packet                                                               %Swi
         val(3) = behavior.status.force_filter.update(val(1), val(2));       %Run the raw signal through the filter.
         behavior.status.force_buffer.write(val);                            %Add the new value to the buffer.
         behavior.status.touch_flag = ...
-            (val(3) >= behavior.session.params.force_thresh);               %Set the touch flag.
-        behavior.status.new_data = true;                                    %Set the flag to indicate new data.
-        behavior.status.update_plots = true;                                %Set the update plots flag to true.
+            (val(3) >= behavior.session.params.force_thresh);               %Set the touch flag.        
         if isequal(behavior.run.root,'session') && ...
                 behavior.session.trial(end).active                          %If we're in a session and a trial is ongoing...
             behavior.session.trial(end).signal.force.write(val);            %Add the new value to the trial buffer.
@@ -58,7 +55,6 @@ switch packet                                                               %Swi
         nosepoke_i = src - 1;                                               %Set the nosepoke index.
         if any(nosepoke_i == 1:2)                                           %If the nosepoke index is 1 or 2...
             behavior.status.nosepoke(nosepoke_i) = data{2};                 %Update the nosepoke value in the status structure.
-            behavior.status.new_data = true;                                %Set the flag to indicate new data.
         end
         if behavior.run == Vulintus_Behavior_Run_Class.session              %If a session is currently running.
             % behavior.session.file.write.poke_bitmask(data(i).timestamp,3,data(i).value(1));
@@ -71,7 +67,6 @@ switch packet                                                               %Swi
         nosepoke_i = src - 1;                                               %Set the nosepoke index.
         if any(nosepoke_i == 1:2)                                           %If the nosepoke index is 1 or 2...
             behavior.status.lick(nosepoke_i) = data{2};                     %Update the nosepoke value in the status structure.
-            behavior.status.new_data = true;                                %Set the flag to indicate new data.
         end
         if behavior.run == Vulintus_Behavior_Run_Class.session              %If a session is currently running.
             % behavior.session.count.lick = ...
@@ -83,7 +78,6 @@ switch packet                                                               %Swi
         nosepoke_i = src - 1;                                               %Set the nosepoke index.
         if any(nosepoke_i == 1:2)                                           %If the nosepoke index is 1 or 2...
             behavior.status.lick(nosepoke_i) = data{2};                     %Update the nosepoke value in the status structure.
-            behavior.status.new_data = true;                                %Set the flag to indicate new data.
         end
         if behavior.run == Vulintus_Behavior_Run_Class.session              %If a session is currently running.
         %     behavior.session.count.lick = ...
@@ -95,3 +89,5 @@ switch packet                                                               %Swi
         behavior.status.feedings(end+1) = data{1};                          %Add the feeding timestamp.
 
 end
+
+behavior.status.update_plots = true;                                %Set the update plots flag to true.

@@ -30,17 +30,17 @@ if ~isempty(i)                                                              %If 
     behavior.session.trial(t).params.time_held = ...
         1e-6*(signal(1,i) - behavior.session.trial(t).time.start.micros);   %Calculate the time held from the sample timestamps.
 end
-fprintf(1,'\n');
-fprintf(1,'t = %d\n', t);
-fprintf(1,'length(behavior.session.trial) = %d\n', length(behavior.session.trial));
-fprintf(1,'behavior.status.touch_flag = %d\n', behavior.status.touch_flag);
-fprintf(1,'behavior.session.trial(t).params.time_held = %1.5f\n', behavior.session.trial(t).params.time_held);
-fprintf(1,'behavior.session.trial(t).params.hold_time = %1.5f\n', behavior.session.trial(t).params.hold_time);
-fprintf(1,'behavior.session.params.hitwin = %1.5f\n', behavior.session.params.hitwin);
-fprintf(1,'class(behavior.session.trial(t).params.time_held) = %s\n', class(behavior.session.trial(t).params.time_held));
-fprintf(1,'class(behavior.session.trial(t).params.hold_time) = %s\n', class(behavior.session.trial(t).params.hold_time));
-fprintf(1,'class(behavior.session.params.hitwin) = %s\n', class(behavior.session.params.hitwin));
-fprintf(1,'\n');
+% fprintf(1,'\n');
+% fprintf(1,'t = %d\n', t);
+% fprintf(1,'length(behavior.session.trial) = %d\n', length(behavior.session.trial));
+% fprintf(1,'behavior.status.touch_flag = %d\n', behavior.status.touch_flag);
+% fprintf(1,'behavior.session.trial(t).params.time_held = %1.5f\n', behavior.session.trial(t).params.time_held);
+% fprintf(1,'behavior.session.trial(t).params.hold_time = %1.5f\n', behavior.session.trial(t).params.hold_time);
+% fprintf(1,'behavior.session.params.hitwin = %1.5f\n', behavior.session.params.hitwin);
+% fprintf(1,'class(behavior.session.trial(t).params.time_held) = %s\n', class(behavior.session.trial(t).params.time_held));
+% fprintf(1,'class(behavior.session.trial(t).params.hold_time) = %s\n', class(behavior.session.trial(t).params.hold_time));
+% fprintf(1,'class(behavior.session.params.hitwin) = %s\n', class(behavior.session.params.hitwin));
+% fprintf(1,'\n');
 if behavior.session.trial(t).params.time_held >= ....
         behavior.session.trial(t).params.hold_time                          %If the rat held longer than the required hold time...
     if behavior.session.trial(t).params.time_held < ...

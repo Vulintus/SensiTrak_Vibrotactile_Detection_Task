@@ -153,4 +153,4 @@ if isfield(behavior.ui.display,'prog_handle') && ...
         [1,1]*behavior.ui.display.trial_time;                               %Update the progress line in the data axes.
 end
 
-behavior.status.new_data = false;                                           %Set the new data flag to false to show the data has been plotted.
+behavior.status.update_plots = false;                                       %Set the plot update flag to false.
