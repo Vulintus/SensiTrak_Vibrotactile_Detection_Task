@@ -34,6 +34,9 @@ if is_empty_field(behavior.session,'params','period')                       %If 
 end
 behavior.status.touch_flag = false;                                         %Force the touch flag to false.
 
+%Set the session start time.
+behavior.session.time.start.datetime = datetime('now');
+
 %Clear the trial history.
 behavior.session.trial = [];                            
 
@@ -64,8 +67,8 @@ end
 for f = {'trial','hit','feed','abort'}                                      %Step through outcome-counting field names...
     behavior.session.count.(f{1}) = 0;                                      %Set each field value to zero.
 end
-if is_empty_field(behavior.session.params,'vib_dur')                        %If the vibration duration wasn't set...
-    behavior.session.params.vib_dur = 3;                                    %Set the vibration duration to 3 milliseconds.
+if is_empty_field(behavior.session.params,'vib_pulse_dur')                  %If the vibration duration wasn't set...
+    behavior.session.params.vib_pulse_dur = 3;                              %Set the vibration duration to 3 milliseconds.
 end
 
 % behavior.session.params.cal = ...

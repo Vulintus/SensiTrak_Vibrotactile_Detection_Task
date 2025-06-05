@@ -28,7 +28,7 @@ if is_fcn_field(behavior.session.fcn,'clock_sync')                          %If 
     behavior.session.fcn.clock_sync();                                      %Request a clock synchronization block.
 end
 
-%Initialize the columns.
+%Initialize the table.
 behavior.ui.table.trial.Data = {};                                          %Clear the table data.
 str = [lower(behavior.session.params.task_mode) ' (ms)'];                   %Set the task mode string for the table.
 str(1) = upper(str(1));                                                     %Make the first character upper-case.
@@ -40,7 +40,7 @@ behavior.ui.table.trial.ButtonDownFcn =  @Vulintus_Copy_to_Clipboard;       %Cop
 
 %Create a session timer function.
 session_timer = Vulintus_Behavior_Session_Timer(behavior.ui.edit.dur,...
-    behavior.session.time.start);
+    behavior.session.time.start.datetime);
 
 %Create a display timer function.
 display_timer = Vulintus_Behavior_Display_Timer(0.05,...
@@ -67,9 +67,7 @@ while isequal(behavior.run.root,'session')                                  %Loo
 %WAIT FOR TRIAL INITIATION *********************************************************************************************************
     while behavior.run == Vulintus_Behavior_Run_Class.session && ...
             ~behavior.status.touch_flag                                     %Loop until a touch is detected...        
-        behavior.ctrl.stream.read();                                        %Read and process any new streaming data.
-        pause(0.005);                                                       %Pause for 5 milliseconds.
-        drawnow;                                                            %Flush the event queue.
+        behavior.ctrl.stream.read(0.005);                                   %Read and process any new streaming data.
     end
 
 %START THE TRIAL *******************************************************************************************************************
@@ -81,9 +79,7 @@ while isequal(behavior.run.root,'session')                                  %Loo
     while behavior.run == Vulintus_Behavior_Run_Class.session && ...
             behavior.status.touch_flag && ...
             ~behavior.session.trial(end).timeout()                          %Loop until touch is released or the end of the trial...
-        behavior.ctrl.stream.read();                                        %Read and process any new streaming data.
-        pause(0.005);                                                       %Pause for 5 milliseconds.
-        drawnow;                                                            %Flush the event queue.
+        behavior.ctrl.stream.read(0.005);                                   %Read and process any new streaming data.
     end 
 
 %END THE TRIAL *********************************************************************************************************************
@@ -100,15 +96,11 @@ while isequal(behavior.run.root,'session')                                  %Loo
             
         case Vulintus_Behavior_Run_Class.session_manual_feed_left           %If the user wants to manually feed.
             Vulintus_Behavior_Manual_Feed(behavior);                        %Trigger a manual feeding and record it in the data file.
-            behavior.session.count.trial = ...
-                behavior.session.count.trial - 1;                           %Subtract one from the trial count.
-            behavior.session.trial(end) = [];                               %Delete the last trial data.
+            behavior.session.delete_last_trial();                           %Delete the last trial data.
             
         case Vulintus_Behavior_Run_Class.session_webcam_preview             %If the user wants to open a webcam preview...    
             Vulintus_Behavior_Launch_Webcam_Preview;                        %Call the toolbox function to launch a webcam preview.
-            behavior.session.count.trial = ...
-                behavior.session.count.trial - 1;                           %Subtract one from the trial count.
-            behavior.session.trial(end) = [];                               %Delete the last trial data.                               
+            behavior.session.delete_last_trial();                           %Delete the last trial data.                           
             
     end         
     if isequal(behavior.run.root,'session')                                 %If the session is still active.
@@ -119,24 +111,21 @@ while isequal(behavior.run.root,'session')                                  %Loo
     behavior.status.touch_flag = true;                                      %Artificially set the touch flag to true.
     while behavior.run == Vulintus_Behavior_Run_Class.session && ...
             behavior.status.touch_flag                                      %Loop until the end of the trial...
-        behavior.ctrl.stream.read();                                        %Read and process any new streaming data.
-        pause(0.005);                                                       %Pause for 5 milliseconds.
-        drawnow;                                                            %Flush the event queue.
+        behavior.ctrl.stream.read(0.005);                                   %Read and process any new streaming data.
     end 
     behavior.status.touch_flag = false;                                     %Force the touch flag to false.
 
 %END THE SESSION IF A PRESET SESSION DURATION HAS PASSED ***************************************************************************
-    % if behavior.run == Vulintus_Behavior_Run_Class.session && ...
-    %         datetime('now') > behavior.session.time.end                     %If the set session duration has passed...
-    %     behavior.run = Vulintus_Behavior_Run_Class.idle;                    %Set the run state to idle.
-    %     if isfield(behavior.ui,'msgbox')                                    %If there's a messagebox in the GUI.
-    %         str = sprintf('%s - Session ended after %1.0f minutes.',...
-    %             char(datetime,'hh:mm:ss'),...
-    %             minutes(behavior.session.params.session_dur));              %Create a message string.
-    %         Add_Msg(behavior.ui.msgbox,str);                                %Show the message in the messagebox.
-    %     end
-    %     drawnow;                                                            %Flush the event queue.
-    % end
+    if isnt_empty_field(behavior.session.time,'end','datetime') && ...
+            datetime('now') > behavior.session.time.end.datetime            %If the set session duration has passed...
+        behavior.run = Vulintus_Behavior_Run_Class.idle;                    %Set the run state to idle.
+        if isfield(behavior.ui,'msgbox')                                    %If there's a messagebox in the GUI.
+            t = datetime('now') - behavior.session.time.end.datetime;       %Calculate the session duration.
+            str = sprintf('%s - Session ended after %1.0f minutes.',...
+                char(datetime,'hh:mm:ss'), minutes(t));                     %Create a message string.
+            Add_Msg(behavior.ui.msgbox,str);                                %Show the message in the messagebox.
+        end
+    end
     
 end
    
